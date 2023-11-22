@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple UI</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #container {
+            width: 100%;
+            height: 50vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #redSection {
+            background-color: red;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        #whiteSection {
+            background-color: white;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #logo {
+            width: 150px; /* Set your logo width */
+            height: auto;
+            margin-bottom: 20px;
+            margin-top: 30px;
+        }
+
+        #title {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        #subtitle {
+            font-size: 20px;
+            margin-top: 5px;
+        }
+
+        #instruction {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        #uploadForm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #result {
+            font-size: 18px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #customUpload {
+            background-color: red; /* Green background */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #customUpload:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        #descriptionButton {
+            background-color: rgb(255, 255, 255); /* Green background */
+            color: rgb(0, 0, 0);
+            padding: 5px 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #descriptionButton:hover {
+            background-color: #45a049; /* Darker green on hover */
+            color: rgb(255, 255, 255);
+            font-weight: bold;
+        }
+
+        .blink {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .green-text {
+            color: green;
+        }
+        #imageContainer {
+            display: none;
+        }
+        #myImage{
+            display: block;
+            border: 2px solid; 
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="redSection">
+            <img id="logo" src="https://seeklogo.com/images/S/saudi-red-crescent-authority-logo-C35E328F90-seeklogo.com.png" alt="Logo">
+            <div id="title">DeepHeart Predict</div>
+            <div id="subtitle">Harnessing AI for Myocardial Infarction Forecasts</div>
+            <br>
+            <!-- Description button and modal -->
+            <button id="descriptionButton" type="button" onclick="showDescription()">Show Description</button>
+            <div id="descriptionModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeDescription()">&times;</span>
+                    <p id="appDescription"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div>
+            <p id="breakStatement"></p>
+        </div>
+        <div id="whiteSection">
+            <div id="instruction">Upload ECG Image</div>
+            <br>
+            <form id="uploadForm" action="/predict" method="POST" enctype="multipart/form-data" onclick="">
+                <input type="file" name="img" required>
+                
+                <button id = 'customUpload' type="submit">AI Assistant</button>
+            </form>
+            <div></div>
+            <br>
+            <div id="imageContainer">
+                <img  src="/static/images/foo.jpg" id="myImage" style="width: 30%;"/>
+            </div>
+            <p id="predictionText"></p>
+            <p id="predictionPercentage"></p>
+            <p id="duration"></p>
+            <p id="time"></p>
+            <p id="date"></p>
+
+            <script>
+                function checkPrediction() {
+                    // Assume that Flask app sets the value of 'prediction' variable before rendering the HTML
+                    var prediction = "{{data}}"; // Replace with the actual value received from Flask app
+                    var predictionTime = "{{predictionTime}}";
+                    var predictionPercentage = "{{percentage}}";
+                    var X;
+                    var Y;
+                    var temp;
+                    // Get the current date and time
+                    var currentDate = new Date();
+                    // Format the date and time
+                    var formattedDate = currentDate.toDateString();
+                    var formattedTime = currentDate.toLocaleTimeString();
+        
+                    var predictionText = document.getElementById("predictionText");
+                    var predictionPercentageText = document.getElementById("predictionPercentage");
+                    var predictTime = document.getElementById("duration");
+                    var timex = document.getElementById("time");
+                    var datex = document.getElementById("date");
+                    var imageContainer = document.getElementById('imageContainer');
+                    var myImage = document.getElementById('myImage');
+
+        
+                    if (prediction === "Myocardial") {
+                        X = "<b>Prediction Time:</b> <span style='color: black;'>"
+                        Y = " seconds</span>"
+                        temp = X + predictionTime + Y;
+                        
+                        predictionText.innerHTML = "<b>Prediction:</b> <span class='blink' style='color: red;'>Myocardial</span>";
+                        predictionPercentageText.innerHTML = "<b>Prediction Accuracy:</b> <span style='color: black;'>" + predictionPercentage + "%</span>";
+                        predictTime.innerHTML = temp;
+                        datex.innerHTML = "<b>Current Date:</b> <span style='color: black;'>" + formattedDate + "</span>";
+                        timex.innerHTML = "<b>Current Time:</b> <span style='color: black;'>" + formattedTime + "</span>";
+                        myImage.style.borderColor = 'red';
+                        imageContainer.style.display = 'block';
+                        
+                    } else if (prediction === "Normal") {
+                        X = "<b>Prediction Time:</b> <span style='color: black;'>"
+                        Y = " seconds</span>"
+                        temp = X + predictionTime + Y;
+                        predictionText.innerHTML = "<b>Prediction:</b> <span class='green-text'>Normal</span>";
+                        predictionPercentageText.innerHTML = "<b>Prediction Accuracy:</b> <span style='color: black;'>" + predictionPercentage + "%</span>";
+                        predictTime.innerHTML = temp;
+                        datex.innerHTML = "<b>Current Date:</b> <span style='color: black;'>" + formattedDate + "</span>";
+                        timex.innerHTML = "<b>Current Time:</b> <span style='color: black;'>" + formattedTime + "</span>";
+                        myImage.style.borderColor = 'green';
+                        imageContainer.style.display = 'block';
+                    } else {
+                        predictionText.innerHTML = "";
+                    }
+                }
+                    window.onload = function() {
+                    checkPrediction();
+                };
+                // Show app description modal
+                function showDescription() {
+                    var modal = document.getElementById("descriptionModal");
+                    var appDescription = document.getElementById("appDescription");
+                    var breakStatement = document.getElementById("breakStatement");
+                    
+                    appDescription.innerHTML = getDescription();
+                    breakStatement.innerHTML = "<br><br><br><br><br>";
+                    modal.style.display = "block";
+                }
+
+                // Close app description modal
+                function closeDescription() {
+                    var modal = document.getElementById("descriptionModal");
+                    var breakStatement = document.getElementById("breakStatement");
+                    modal.style.display = "none";
+                    breakStatement.style.display = "none";
+
+                }
+
+                // Close modal if clicked outside the content
+                window.onclick = function(event) {
+                    var modal = document.getElementById("descriptionModal");
+                    if (event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                };
+
+                // Function to get the app description
+                function getDescription() {
+                    return "Our application utilizes a sophisticated ResNet50 model, meticulously trained and tested on Myocardial Infarction and Normal ECG data. Demonstrating exceptional accuracy, the model proficiently classifies ECG data with an impressive success rate of 97%.";
+                }
+
+            </script>
+        </div>
+    </div>
+</body>
+</html>
